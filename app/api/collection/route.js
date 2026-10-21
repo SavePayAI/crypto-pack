@@ -4,6 +4,8 @@ import { requireWallet } from '../../../lib/auth.js';
 import { CARDS } from '../../../lib/shop.js';
 import { fail } from '../../../lib/http.js';
 
+export const dynamic = 'force-dynamic';
+
 // Returns the player's cards, balance and shop rules (lock, fee, buyback status).
 export async function GET(req) {
   try {
@@ -13,9 +15,11 @@ export async function GET(req) {
       .select('id,card_key,rarity,value_lamports,status,acquired_at')
       .eq('wallet', wallet).order('acquired_at', { ascending: false });
     const { data: u } = await db.from('users').select('balance_lamports').eq('wallet', wallet).maybeSingle();
+    const { data: wd } = await db.from('withdrawals').select('amount_lamports').eq('wallet', wallet).eq('status', 'pending');
     const now = Date.now();
     return NextResponse.json({
       balanceLamports: u?.balance_lamports ?? 0,
+      pendingPayoutLamports: (wd || []).reduce((s, x) => s + Number(x.amount_lamports), 0),
       buybackOpen: s.buyback_open, lockHours: s.lock_hours, feePercent: s.fee_bps / 100,
       cards: (cards || []).map((c) => {
         const unlocksAt = new Date(c.acquired_at).getTime() + s.lock_hours * 3600 * 1000;
