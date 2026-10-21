@@ -247,7 +247,7 @@ function setStatus(t,err){const s=$('status');s.textContent=t;s.className='statu
 function short(k){return k.slice(0,4)+'...'+k.slice(-4)}
 
 const SOL=1e9;
-let CFG=null,TIERS=[],token=null,pubkey=null,col=null,cur=null,busy=false,hide=false,VAL={},FEE=.05,sel=null;
+let wbal=null,CFG=null,TIERS=[],token=null,pubkey=null,col=null,cur=null,busy=false,hide=false,VAL={},FEE=.05,sel=null;
 const DESC={basic:'Standard odds for rare cards.',prem:'No commons. Every card is Rare or better.',elite:'Gold foil cards only, each worth 1 to 15 SOL.'};
 const f=n=>(Math.round(n*10000)/10000).toString();
 const sg=n=>(n>=0?'+':'')+f(n);
@@ -264,20 +264,21 @@ const ev=t=>{let s=0,T=Object.values(t.w).reduce((a,b)=>a+b,0);for(const k in t.
 const mn=t=>5*(1-FEE)*Math.min(...CARDS.filter(c=>t.w[c.r]&&c.s===(t.set||'std')).map(c=>VAL[c.n]));
 
 function renderShop(){$('shop').innerHTML=TIERS.map(t=>'<div class="tier'+(t.id==='elite'?' elite':'')+'"><b>'+t.name+'</b><div class="price">'+t.price+' SOL</div><p>'+(DESC[t.id]||'')+' 5 cards per pack.</p><div class="odds">Odds per card: '+Object.entries(t.w).map(([k,v])=>RL[k]+' '+v+'%').join(', ')+'<br>Average value per pack after the sell fee: '+f(ev(t))+' SOL ('+Math.round(ev(t)/t.price*100)+'% of price)<br>Lowest possible value after the sell fee: '+f(mn(t))+' SOL ('+Math.round(mn(t)/t.price*100)+'% back)</div><button data-id="'+t.id+'">Buy and open</button></div>').join('')}
-function banner(){$('bb').textContent=CFG.buybackOpen?'Buyback is open. A '+Math.round(FEE*100)+'% sell fee applies.'+(CFG.lockHours?' Cards must be held '+CFG.lockHours+' hours before they can be sold.':' You can sell cards at any time.'):'Buyback is not open yet. For now cards can only be held. When the shop opens buyback, cards must be held '+CFG.lockHours+' hours before they can be sold. A '+Math.round(FEE*100)+'% sell fee applies to every sale. Selling is not guaranteed and depends on the shop opening buyback.'}
+function banner(){const T=CFG.testMode?'TEST MODE: packs are free and no SOL is charged. ':'';$('bb').textContent=T+(CFG.buybackOpen?'Buyback is open. A '+Math.round(FEE*100)+'% sell fee applies.'+(CFG.lockHours?' Cards must be held '+CFG.lockHours+' hours before they can be sold.':' You can sell cards at any time.'):'Buyback is not open yet. For now cards can only be held. When the shop opens buyback, cards must be held '+CFG.lockHours+' hours before they can be sold. A '+Math.round(FEE*100)+'% sell fee applies to every sale. Selling is not guaranteed and depends on the shop opening buyback.')}
 
 function render(){
   if(!CFG)return;
   banner();
-  $('bal').textContent=token&&col?'Balance: '+f(col.balanceLamports/SOL)+' SOL':'';
+  $('bal').textContent=token?('Wallet: '+(wbal===null?'...':f(wbal))+' SOL'+(col?' | Shop balance: '+f(col.balanceLamports/SOL)+' SOL':'')):'';
   const hold=(col?col.cards:[]).filter(c=>c.status==='held'&&!(hide&&cur&&cur.ids.includes(c.id)));
   const by={};hold.forEach(c=>(by[c.name]=by[c.name]||[]).push(c));
   const hv=hold.reduce((s,c)=>s+c.netValueLamports/SOL,0);
-  $('port').innerHTML=hide?'<div>Your stats appear once you open all your cards</div>':(token?'<div>Balance<b>'+f(col?col.balanceLamports/SOL:0)+' SOL</b></div><div>Held value (after fee)<b>'+f(hv)+' SOL</b></div><div><button id="wd" class="alt">Withdraw balance</button></div>':'<div>Connect your wallet to see your collection</div>');
+  $('port').innerHTML=hide?'<div>Your stats appear once you open all your cards</div>':(token?'<div>Shop balance (from sold cards)<b>'+f(col?col.balanceLamports/SOL:0)+' SOL</b></div><div>Held value (after fee)<b>'+f(hv)+' SOL</b></div><div><button id="wd" class="alt">Withdraw balance</button></div>':'<div>Connect your wallet to see your collection</div>');
   const slot=c=>by[c.n]?'<div class="slot" data-n="'+c.n+'" style="border-color:transparent;cursor:pointer">'+cardHTML(c,0,1)+(by[c.n].length>1?'<span class="x">x'+by[c.n].length+'</span>':'')+'</div>':'<div class="slot"><div><b>'+c.g+'</b>'+RL[c.r]+'</div></div>';
   $('book').innerHTML=[['std','Standard set'],['gold','Gold foil set']].map(([k,t])=>{const o=CARDS.filter(c=>c.s===k).sort((a,b)=>VAL[b.n]-VAL[a.n]),h=Math.ceil(o.length/2);return '<h3 class="bh">'+t+'</h3><div class="book'+(k==='gold'?' gk':'')+'"><div class="page">'+o.slice(0,h).map(slot).join('')+'</div><div class="page">'+o.slice(h).map(slot).join('')+'</div></div>'}).join('');
 }
 async function loadCol(){col=await api('/api/collection');render()}
+async function loadWallet(first){try{const c=new solanaWeb3.Connection(CFG.rpc,'confirmed');wbal=(await c.getBalance(new solanaWeb3.PublicKey(pubkey)))/SOL}catch(e){wbal=null}render();if(first&&wbal===0)setStatus('Your wallet shows 0 SOL on Solana mainnet. If your Phantom has SOL, check that Testnet Mode is off and the right account is selected.',true)}
 
 function drawPack(){$('reveal').innerHTML=cur.got.map((c,i)=>'<div class="cw">'+cardHTML(c,i)+'</div>').join('');wire();sum()}
 function wire(){
@@ -316,12 +317,12 @@ async function connect(){
     $('connect').textContent='Disconnect';
     $('connect').classList.add('alt');
     await loadCol();
-    setStatus('Wallet connected.');
+    setStatus('Wallet connected.');loadWallet(true);
   }catch(e){pubkey=null;token=null;setStatus(e.message||'Connection cancelled.',true)}
 }
 async function disconnect(){
   try{await provider().disconnect()}catch(e){}
-  pubkey=null;token=null;col=null;cur=null;hide=false;
+  pubkey=null;token=null;col=null;cur=null;hide=false;wbal=null;
   $('addr').textContent='';$('connect').textContent='Connect wallet';$('connect').classList.remove('alt');
   $('reveal').innerHTML='<span style="color:var(--mute)">No pack opened yet.</span>';$('sum').innerHTML='';
   setStatus('Wallet disconnected.');render();
@@ -332,9 +333,10 @@ async function buy(t){
   if(busy)return;
   if(!token){setStatus('Connect your wallet before buying.',true);return}
   if(cur&&hide){setStatus('Open all the cards in your current pack first.',true);return}
+  if(wbal!==null&&wbal<t.price+0.003){setStatus('Not enough SOL in your wallet. You need at least '+f(t.price+0.003)+' SOL (pack price plus network fee). Your wallet has '+f(wbal)+' SOL.',true);return}
   busy=true;let paid=null;
   try{
-    setStatus('Approve the payment in your wallet...');
+    if(CFG.testMode){paid='TEST-'+Date.now().toString(36)+Math.random().toString(36).slice(2);setStatus('Test mode: no real payment is taken.')}else{setStatus('Approve the payment in your wallet...');
     const conn=new solanaWeb3.Connection(CFG.rpc,'confirmed'),from=new solanaWeb3.PublicKey(pubkey);
     const tx=new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({fromPubkey:from,toPubkey:new solanaWeb3.PublicKey(CFG.shopWallet),lamports:Math.round(t.price*SOL)}));
     tx.feePayer=from;
@@ -342,7 +344,7 @@ async function buy(t){
     const r=await provider().signAndSendTransaction(tx);
     setStatus('Confirming payment...');
     await conn.confirmTransaction({signature:r.signature,blockhash:bh.blockhash,lastValidBlockHeight:bh.lastValidBlockHeight},'confirmed');
-    paid=r.signature;
+    paid=r.signature;}
     ov(true);
     const out=await Promise.all([api('/api/buy',{packId:t.id,signature:paid}),new Promise(x=>setTimeout(x,2700))]);
     ov(false);
@@ -350,7 +352,7 @@ async function buy(t){
     cur={t,ids:out[0].cards.map(c=>c.id),got:out[0].cards.map(c=>CARDS.find(x=>x.n===c.name))};
     drawPack();
     await loadCol();
-    setStatus('Pack opened. Tap each card to flip it. Your cards are already saved in your binder.');
+    setStatus('Pack opened. Tap each card to flip it. Your cards are already saved in your binder.');loadWallet();
   }catch(e){
     ov(false);
     setStatus(paid?'Your payment went through but the pack could not be recorded. Keep this code and contact the shop: '+paid:(e.message||'Purchase cancelled.'),true);
