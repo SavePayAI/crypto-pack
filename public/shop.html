@@ -313,7 +313,7 @@ async function connect(){
     const m=await api('/api/auth/nonce',{wallet:pubkey});
     const sig=await p.signMessage(new TextEncoder().encode(m.message),'utf8');
     const l=await api('/api/auth/login',{wallet:pubkey,signature:b58(sig.signature)});
-    token=l.token;
+    token=l.token;try{localStorage.setItem('cp_sess',JSON.stringify({wallet:pubkey,token}))}catch(e){}
     $('addr').textContent=short(pubkey);
     $('connect').textContent='Disconnect';
     $('connect').classList.add('alt');
@@ -323,7 +323,7 @@ async function connect(){
 }
 async function disconnect(){
   try{await provider().disconnect()}catch(e){}
-  pubkey=null;token=null;col=null;cur=null;hide=false;wbal=null;
+  try{localStorage.removeItem('cp_sess')}catch(e){}pubkey=null;token=null;col=null;cur=null;hide=false;wbal=null;
   $('addr').textContent='';$('connect').textContent='Connect wallet';$('connect').classList.remove('alt');
   $('reveal').innerHTML='<span style="color:var(--mute)">No pack opened yet.</span>';$('sum').innerHTML='';
   setStatus('Wallet disconnected.');render();
@@ -391,13 +391,28 @@ $('all').onclick=()=>document.querySelectorAll('#reveal .c.down').forEach((el,i)
 $('heroPack').onclick=()=>$('shop').scrollIntoView({behavior:'smooth'});
 tilt('#heroPack');
 
+async function restore(){
+  try{
+    const raw=localStorage.getItem('cp_sess');const p=provider();
+    if(!raw||!p)return;
+    const saved=JSON.parse(raw);
+    const r=await p.connect({onlyIfTrusted:true});
+    if(r.publicKey.toString()!==saved.wallet){localStorage.removeItem('cp_sess');return}
+    pubkey=saved.wallet;token=saved.token;
+    await loadCol();
+    $('addr').textContent=short(pubkey);$('connect').textContent='Disconnect';$('connect').classList.add('alt');
+    loadWallet();
+    if(p.on)p.on('accountChanged',()=>location.reload());
+    setStatus('Wallet reconnected.');
+  }catch(e){pubkey=null;token=null;col=null;try{localStorage.removeItem('cp_sess')}catch(_){}render()}
+}
 async function init(){
   try{
     CFG=await api('/api/config');
     FEE=CFG.feePercent/100;
     CFG.cards.forEach(c=>VAL[c.name]=c.valueLamports/SOL);
     TIERS=CFG.packs.map(p=>({id:p.id,name:p.name,price:p.priceLamports/SOL,w:p.odds,set:p.set}));
-    renderShop();render();
+    renderShop();render();await restore();
   }catch(e){setStatus('Could not reach the shop server: '+e.message,true)}
 }
 init();
