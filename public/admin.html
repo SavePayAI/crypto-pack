@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Crypto Pack Admin</title>
+<style>
+:root{color-scheme:dark;--bg:#140a3d;--panel:#211560;--ink:#f6f2ff;--mute:#b4aee8;--up:#5dffb0;--dn:#ff6b8b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,sans-serif;padding:20px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:26px 0 8px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+button{font:600 14px system-ui,sans-serif;border:0;border-radius:999px;padding:9px 18px;cursor:pointer;background:linear-gradient(100deg,#35f0ff,#9d7bff);color:#1c1450}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.card{background:var(--panel);border-radius:14px;padding:14px 16px}
+.card small{display:block;color:var(--mute)}.card b{display:block;font-size:22px;margin-top:2px}
+.card .s{font-size:12px;color:var(--mute);margin-top:2px}
+.tw{overflow-x:auto;background:var(--panel);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid #ffffff14;font-size:13px}
+th{color:var(--mute);font-weight:600}
+#msg{color:var(--mute)}#msg.err{color:var(--dn)}
+.mono{font-family:ui-monospace,Menlo,monospace}
+</style>
+</head>
+<body>
+<div class="top">
+  <div><h1>Crypto Pack Admin</h1><div id="msg">Connect the shop wallet account in Phantom to view the dashboard. You only sign a message, there is no payment.</div></div>
+  <div><button id="go">Connect shop wallet</button> <button id="rf" style="display:none">Refresh</button></div>
+</div>
+<div id="out"></div>
+<script>
+const $=id=>document.getElementById(id);
+const f=n=>(Math.round(n*10000)/10000).toString();
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const short=k=>k&&k.length>10?k.slice(0,4)+'...'+k.slice(-4):k;
+const B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+function b58(bytes){let d=[0];for(const b of bytes){let c=b;for(let j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0}while(c){d.push(c%58);c=(c/58)|0}}let s='';for(const b of bytes){if(b)break;s+='1'}for(let i=d.length-1;i>=0;i--)s+=B58[d[i]];return s}
+let token=null;
+function msg(t,err){const m=$('msg');m.textContent=t;m.className=err?'err':''}
+async function api(path,body){
+  const r=await fetch(path,{method:body===undefined?'GET':'POST',headers:Object.assign({'Content-Type':'application/json'},token?{Authorization:'Bearer '+token}:{}),body:body===undefined?undefined:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.error||'Request failed');
+  return j;
+}
+function provider(){return (window.phantom&&window.phantom.solana)||(window.solana&&window.solana.isPhantom?window.solana:null)}
+async function login(){
+  const p=provider();
+  if(!p){msg('Phantom wallet not detected.',true);return}
+  try{
+    const r=await p.connect(),w=r.publicKey.toString();
+    const m=await api('/api/auth/nonce',{wallet:w});
+    const s=await p.signMessage(new TextEncoder().encode(m.message),'utf8');
+    const l=await api('/api/auth/login',{wallet:w,signature:b58(s.signature)});
+    token=l.token;
+    await load();
+  }catch(e){msg(e.message||'Cancelled.',true)}
+}
+async function load(){
+  msg('Loading...');
+  try{render(await api('/api/admin/stats'));msg('Updated '+new Date().toLocaleString());$('go').style.display='none';$('rf').style.display=''}
+  catch(e){msg(e.message+(String(e.message).includes('admin')?'. Switch to the shop wallet account in Phantom and connect again.':''),true)}
+}
+function render(d){
+  const T=d.totals;
+  const c=(t,v,s)=>'<div class="card"><small>'+t+'</small><b>'+v+'</b>'+(s?'<div class="s">'+s+'</div>':'')+'</div>';
+  const tbl=(head,rows)=>'<div class="tw"><table><tr>'+head.map(h=>'<th>'+h+'</th>').join('')+'</tr>'+(rows.length?rows.join(''):'<tr><td colspan="'+head.length+'">No data yet</td></tr>')+'</table></div>';
+  const tr=cells=>'<tr>'+cells.map(x=>'<td>'+x+'</td>').join('')+'</tr>';
+  let h='<div class="grid">'+
+    c('Reserve (buyback fund)',f(T.reserve)+' SOL','Set aside for buyback')+
+    c('Pack sales volume',f(T.revenue)+' SOL',T.purchaseCount+' pack purchases')+
+    c('Cards sold back',T.soldCount+' cards','Gross value '+f(T.soldGross)+' SOL')+
+    c('Sell fees earned (est.)',f(T.feeEst)+' SOL','Fee '+d.feePercent+'%')+
+    c('Payouts paid',f(T.paidOut)+' SOL',T.paidCount+' payouts')+
+    c('Payouts pending',f(T.pending)+' SOL',T.pendingCount+' waiting')+
+    c('Owed in-shop balances',f(T.owed)+' SOL','Old balances not yet paid')+
+    c('Total transactions',T.txCount,'Purchases + payouts')+
+    c('Total volume',f(T.volume)+' SOL','Purchases + payouts')+
+    c('Profit you can take (est.)',f(T.safeProfit)+' SOL','Sales - paid - reserve - pending - owed')+
+  '</div>';
+  h+='<h2>Transactions per pack ID</h2>'+tbl(['Pack ID','Purchases','Volume (SOL)'],d.packs.map(k=>tr([esc(k.pack),k.count,f(k.volume)])));
+  h+='<h2>Transactions per wallet ID</h2>'+tbl(['Wallet','Purchases','Spent (SOL)','Cards held','Cards sold','Payouts','Paid (SOL)'],d.wallets.map(x=>tr(['<span class="mono" title="'+esc(x.wallet)+'">'+esc(short(x.wallet))+'</span>',x.buys,f(x.spent),x.held,x.sold,x.payouts,f(x.paid)])));
+  h+='<h2>Latest transactions</h2>'+tbl(['Time','Type','Wallet','Detail','Amount (SOL)','Status'],d.recent.map(x=>tr([esc(new Date(x.time).toLocaleString()),esc(x.type),'<span class="mono">'+esc(short(x.wallet))+'</span>','<span class="mono">'+esc(short(x.detail))+'</span>',f(x.amount),esc(x.status)])));
+  $('out').innerHTML=h;
+}
+$('go').onclick=login;$('rf').onclick=load;
+</script>
+</body>
+</html>
