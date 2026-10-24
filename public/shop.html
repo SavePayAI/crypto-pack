@@ -152,12 +152,66 @@ button.sell{background:linear-gradient(100deg,#ffd34d,#ff9d2e)}
 .note{background:var(--panel);border-radius:14px;padding:14px 18px;color:var(--mute);font-size:14px;margin-top:32px}
 @media(max-width:720px){.hero{grid-template-columns:1fr}.stage{order:-1;min-height:290px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== new pack art ===== */
+.pkx{position:relative;width:15em;height:26em;font-size:var(--fs,16px);--pa:#2f7bff;--pb:#38e0ff;font-family:Bungee,'DM Sans',system-ui,sans-serif;filter:drop-shadow(0 0 1.1em color-mix(in srgb,var(--pa) 75%,transparent)) drop-shadow(0 1em 1em #000a);transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .15s}
+.pkx-basic{--pa:#2f7bff;--pb:#38e0ff}.pkx-prem{--pa:#8a3dff;--pb:#ff4fd8}.pkx-elite{--pa:#ffb800;--pb:#ffe58a}
+.pkx-body{position:absolute;inset:0;clip-path:var(--cp);overflow:hidden;text-align:center;color:#fff;background:linear-gradient(165deg,color-mix(in srgb,var(--pa) 62%,#000),#0a0a1c 44%,color-mix(in srgb,var(--pa) 48%,#000))}
+.pkx-body::before{content:'';position:absolute;inset:5% 4.5%;border:.14em solid var(--pb);border-radius:.8em;opacity:.55;box-shadow:inset 0 0 1.2em color-mix(in srgb,var(--pb) 40%,transparent)}
+.pkx-body::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 32%,#ffffff30 46%,transparent 60%);background-size:260% 100%;animation:pkxs 4.5s linear infinite}
+@keyframes pkxs{from{background-position:130% 0}to{background-position:-130% 0}}
+.pkx-logo{position:absolute;left:29.5%;top:12.5%;width:41%;aspect-ratio:1;border-radius:50%;border:.26em solid var(--pb);box-shadow:0 0 1.1em var(--pb);object-fit:cover;background:#0d0730}
+.pkx-crown{position:absolute;left:38%;top:5.2%;width:24%}
+.pkx-name{position:absolute;left:0;right:0;top:40.5%;font-size:2em;line-height:.95;background:linear-gradient(#fff,color-mix(in srgb,var(--pb) 75%,#fff));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 .06em 0 #0008)}
+.pkx-badge{position:absolute;left:17%;right:17%;top:59%;height:7.6%;display:grid;place-items:center;font-size:1.1em;color:var(--pb);border:.13em solid var(--pb);border-radius:.45em;transform:skewX(-8deg);background:#0007;box-shadow:0 0 .8em color-mix(in srgb,var(--pb) 50%,transparent)}
+.pkx-price{position:absolute;left:0;right:0;top:69.5%;font-size:1.55em;text-shadow:0 0 .55em var(--pb)}
+.pkx-l1,.pkx-l2{position:absolute;left:6%;right:6%;font:600 .62em 'DM Sans',system-ui,sans-serif;text-transform:uppercase;letter-spacing:.06em}
+.pkx-l1{top:82.5%;color:#e6ecff}.pkx-l2{top:87.2%;color:var(--pb)}
+.pkx-glow{position:absolute;inset:-10%;background:radial-gradient(circle at 50% 50%,#fff 0,color-mix(in srgb,var(--pb) 75%,#fff) 22%,transparent 62%);opacity:0;mix-blend-mode:screen;pointer-events:none}
+.pkx-cr{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.pkx-cr path{stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:100;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 6px var(--pb))}
+/* hero fan */
+.fan{position:relative;width:100%;height:410px}
+.fw{position:absolute;left:50%;top:50%;width:15em;height:26em;margin:-13em 0 0 -7.5em;--fs:clamp(9px,1.25vw,13.5px);font-size:var(--fs);animation:flt 5s ease-in-out infinite}
+.fw.f0{transform:translateX(-11em) rotate(-8deg) scale(.88)}
+.fw.f1{transform:scale(1.06);z-index:2;animation-delay:.5s}
+.fw.f2{transform:translateX(11em) rotate(8deg) scale(.88);animation-delay:1s}
+@keyframes flt{50%{translate:0 -10px}}
+.stage{min-height:420px}
+/* tier cards */
+.tp{display:flex;justify-content:center;margin:4px 0 18px}
+.tp .pkx{--fs:11px}
+.tier .price{display:none}
+/* opening overlay */
+#ov .ovp{position:relative;z-index:1;--fs:min(20px,3.1vh,5.2vw)}
+#ov.go .ovp .pkx{animation:beat 3.6s linear forwards}
+#ov.go .pkx-glow{animation:gl 3.6s linear forwards}
+#ov.go .cr1{animation:cr .5s .5s forwards}#ov.go .cr2{animation:cr .5s .75s forwards}#ov.go .cr3{animation:cr .5s 1s forwards}
+#ov.go .cr4{animation:cr .5s 1.3s forwards}#ov.go .cr5{animation:cr .4s 1.6s forwards}#ov.go .cr6{animation:cr .4s 1.9s forwards}#ov.go .cr7{animation:cr .4s 2.2s forwards}
+@keyframes cr{to{stroke-dashoffset:0}}
+@keyframes gl{0%,35%{opacity:0}60%{opacity:.35}85%{opacity:.9}100%{opacity:1}}
+@keyframes beat{
+0%{transform:scale(1);filter:brightness(1)}6%{transform:scale(1.03)}10%{transform:scale(1)}16%{transform:scale(1.035)}20%{transform:scale(1.005)}
+27%{transform:scale(1.05) rotate(-.6deg)}31%{transform:scale(1.01)}37%{transform:scale(1.06) rotate(.8deg)}40%{transform:scale(1.02)}
+46%{transform:scale(1.08) rotate(-1deg)}49%{transform:scale(1.03)}54%{transform:scale(1.1) rotate(1.2deg);filter:brightness(1.15)}57%{transform:scale(1.05)}
+62%{transform:scale(1.13) rotate(-1.5deg)}65%{transform:scale(1.07)}70%{transform:scale(1.16) rotate(1.8deg);filter:brightness(1.4)}73%{transform:scale(1.1)}
+78%{transform:scale(1.2) rotate(-2deg);filter:brightness(1.7)}84%{transform:scale(1.24) rotate(2.4deg);filter:brightness(2.1)}
+92%{transform:scale(1.3) rotate(-2.6deg);filter:brightness(2.8)}100%{transform:scale(1.4);filter:brightness(4)}}
+#ov .flashw{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:3}
+#ov.go .flashw{animation:fw 3.6s linear forwards}
+@keyframes fw{0%,82%{opacity:0}92%,100%{opacity:1}}
+#ov.boom{animation:ovout .8s forwards}
+#ov.boom .flashw{opacity:1;animation:none}
+@keyframes ovout{0%{opacity:1}100%{opacity:0}}
+#snd{position:fixed;left:14px;bottom:14px;z-index:70;padding:8px 14px;font-size:13px;background:#140a3dcc;backdrop-filter:blur(6px)}
+@media(max-width:720px){.fan{height:340px}.fw{--fs:10px}.fw.f0{transform:translateX(-9.4em) rotate(-8deg) scale(.85)}.fw.f2{transform:translateX(9.4em) rotate(8deg) scale(.85)}}
 </style>
 </head>
 <body>
 <div class="floor"></div>
-<div id="ov"><div class="rays"></div><div class="pack"><i class="shine"></i><div><b>CRYPTO<br>PACK</b><img class="lg pl" alt=""></div></div><p>Opening pack...</p></div>
+<div id="ov"><div class="rays"></div><div class="ovp" id="ovp"></div><p>Opening pack...</p><div class="flashw"></div></div>
 <div id="md"><div class="mb"><div id="mc"></div><div id="mi"></div></div></div>
+<button id="snd" class="alt" title="Toggle sound"></button>
 <div id="fl2"></div>
 <header>
   <div class="brand"><img class="lg hl" alt=""><span class="holo-t">Crypto Pack</span></div>
@@ -170,10 +224,7 @@ button.sell{background:linear-gradient(100deg,#ffd34d,#ff9d2e)}
       <h1>Open the Pack. <span class="holo-t">Reveal the Unexpected.</span></h1>
       <p>Every pack holds 5 original mascot cards inspired by the biggest coins, from Bitcoin and Ethereum to Solana and the meme kings. Connect your Solana wallet, pick a pack, then tap each card to reveal it.</p><p class="tags">COLLECT • REVEAL • TRADE &nbsp;|&nbsp; BUILT ON SOLANA</p>
     </div>
-    <div class="stage">
-      <img class="coin lg" alt="Crypto Pack logo">
-      <div class="pack" id="heroPack" role="img" aria-label="Crypto Pack"><i class="shine"></i><div><b>CRYPTO<br>PACK</b><img class="lg pl" alt=""></div></div>
-    </div>
+    <div class="stage"><div class="fan" id="heroPack"></div></div>
   </section>
 
   <h2>Choose a pack</h2><div class="note" id="bb" style="margin:0 0 14px"></div>
@@ -264,7 +315,7 @@ async function api(path,body){
 const ev=t=>{let s=0,T=Object.values(t.w).reduce((a,b)=>a+b,0);for(const k in t.w){const p=CARDS.filter(c=>c.r===k&&c.s===(t.set||'std'));s+=t.w[k]/T*p.reduce((a,c)=>a+VAL[c.n],0)/p.length}return s*5*(1-FEE)};
 const mn=t=>5*(1-FEE)*Math.min(...CARDS.filter(c=>t.w[c.r]&&c.s===(t.set||'std')).map(c=>VAL[c.n]));
 
-function renderShop(){$('shop').innerHTML=TIERS.map(t=>'<div class="tier'+(t.id==='elite'?' elite':'')+'"><b>'+t.name+'</b><div class="price">'+t.price+' SOL</div><p>'+(DESC[t.id]||'')+' 5 cards per pack.</p><div class="odds">Odds per card: '+Object.entries(t.w).map(([k,v])=>RL[k]+' '+v+'%').join(', ')+'<br>Average value per pack after the sell fee: '+f(ev(t))+' SOL ('+Math.round(ev(t)/t.price*100)+'% of price)<br>Lowest possible value after the sell fee: '+f(mn(t))+' SOL ('+Math.round(mn(t)/t.price*100)+'% back)</div><button data-id="'+t.id+'">Buy and open</button></div>').join('')}
+function renderShop(){$('shop').innerHTML=TIERS.map(t=>'<div class="tier'+(t.id==='elite'?' elite':'')+'"><div class="tp">'+packHTML(t)+'</div><b>'+t.name+'</b><div class="price">'+t.price+' SOL</div><p>'+(DESC[t.id]||'')+' 5 cards per pack.</p><div class="odds">Odds per card: '+Object.entries(t.w).map(([k,v])=>RL[k]+' '+v+'%').join(', ')+'<br>Average value per pack after the sell fee: '+f(ev(t))+' SOL ('+Math.round(ev(t)/t.price*100)+'% of price)<br>Lowest possible value after the sell fee: '+f(mn(t))+' SOL ('+Math.round(mn(t)/t.price*100)+'% back)</div><button data-id="'+t.id+'">Buy and open</button></div>').join('')}
 function banner(){const T=CFG.testMode?'TEST MODE: packs are free and no SOL is charged. ':'';$('bb').textContent=T+(CFG.buybackOpen?'Buyback is open. A '+Math.round(FEE*100)+'% sell fee applies.'+(CFG.lockHours?' Cards must be held '+CFG.lockHours+' hours before they can be sold.':' You can sell cards at any time.'):'Buyback is not open yet. For now cards can only be held. When the shop opens buyback, cards must be held '+CFG.lockHours+' hours before they can be sold. A '+Math.round(FEE*100)+'% sell fee applies to every sale. Selling is not guaranteed and depends on the shop opening buyback.')}
 
 function render(){
@@ -291,8 +342,8 @@ function flip(el){
   if(!el.classList.contains('down')||el.dataset.ch)return;
   el.dataset.ch=1;
   const cw=el.closest('.cw'),t=el.classList.contains('legendary')?2000:el.classList.contains('epic')?1400:el.classList.contains('rare')?1000:650;
-  cw.classList.add('charging');
-  setTimeout(()=>{cw.classList.remove('charging');el.classList.remove('down');burst(el);if([...document.querySelectorAll('#reveal .c')].every(c=>!c.classList.contains('down')))hide=false;sum();render()},t);
+  cw.classList.add('charging');sfxCharge(el);
+  setTimeout(()=>{cw.classList.remove('charging');el.classList.remove('down');burst(el);sfxReveal(el);if([...document.querySelectorAll('#reveal .c')].every(c=>!c.classList.contains('down')))hide=false;sum();render()},t);
 }
 function sum(){
   if(!cur){$('sum').innerHTML='';return}
@@ -300,7 +351,7 @@ function sum(){
   const v=cur.got.reduce((s,c)=>s+nv(VAL[c.n]),0),d=v-cur.t.price;
   $('sum').innerHTML='<div class="sum"><div>Pack cost <b>'+f(cur.t.price)+' SOL</b>, cards worth <b>'+f(v)+' SOL</b> after the '+Math.round(FEE*100)+'% sell fee<br>Result: <b class="'+(d>=0?'up':'dn')+'">'+sg(d)+' SOL ('+sg(Math.round(d/cur.t.price*100))+'%)</b><br><small>Your cards are saved in your binder below.</small></div></div>';
 }
-function ov(on){const o=$('ov');if(on){o.className='on';void o.offsetWidth;o.className='on go'}else if(o.classList.contains('on')){o.className='on boom';setTimeout(()=>o.className='',500)}}
+function ov(on,t){const o=$('ov');if(on){$('ovp').innerHTML=packHTML(t||TIERS[0],{cracks:1});fillLogos();o.className='on';void o.offsetWidth;o.className='on go';sfxOpen((t||{}).id)}else if(o.classList.contains('on')){o.className='on boom';setTimeout(()=>o.className='',800);const r=$('reveal');if(r)setTimeout(()=>r.scrollIntoView({behavior:'smooth',block:'start'}),200)}}
 function burst(el){const b=document.createElement('div');b.className='burst';el.appendChild(b);setTimeout(()=>b.remove(),800);if(el.classList.contains('epic')||el.classList.contains('legendary')){const x=$('fl2');x.style.setProperty('--rc',el.classList.contains('legendary')?'#ffd34d':'#ff4fd8');x.className='';void x.offsetWidth;x.className='go'}}
 
 async function connect(){
@@ -330,7 +381,7 @@ async function disconnect(){
 }
 $('connect').onclick=()=>pubkey?disconnect():connect();
 
-async function buy(t){
+async function buy(t){audio();
   if(busy)return;
   if(!token){setStatus('Connect your wallet before buying.',true);return}
   if(cur&&hide){setStatus('Open all the cards in your current pack first.',true);return}
@@ -346,8 +397,8 @@ async function buy(t){
     setStatus('Confirming payment...');
     await conn.confirmTransaction({signature:r.signature,blockhash:bh.blockhash,lastValidBlockHeight:bh.lastValidBlockHeight},'confirmed');
     paid=r.signature;}
-    ov(true);
-    const out=await Promise.all([api('/api/buy',{packId:t.id,signature:paid}),new Promise(x=>setTimeout(x,2700))]);
+    ov(true,t);
+    const out=await Promise.all([api('/api/buy',{packId:t.id,signature:paid}),new Promise(x=>setTimeout(x,3600))]);
     ov(false);
     hide=true;
     cur={t,ids:out[0].cards.map(c=>c.id),got:out[0].cards.map(c=>CARDS.find(x=>x.n===c.name))};
@@ -376,7 +427,7 @@ $('md').onclick=async e=>{
   const s=b.dataset.s;if(s==='x'){$('md').className='';return}
   const r=col.cards.filter(x=>x.status==='held'&&x.name===sel&&x.sellable).slice(0,s==='all'?50:1);
   if(!r.length)return;
-  try{b.disabled=true;const j=await api('/api/sell',{cardIds:r.map(x=>x.id)});setStatus('Sold '+r.length+' x '+sel+' for '+f(j.paidLamports/SOL)+' SOL. '+(j.payout==='sent'?'The SOL was sent to your wallet.':'Your payout is pending and the shop will send it to your wallet.'));await loadCol();loadWallet();openM(sel)}
+  try{b.disabled=true;const j=await api('/api/sell',{cardIds:r.map(x=>x.id)});setStatus('Sold '+r.length+' x '+sel+' for '+f(j.paidLamports/SOL)+' SOL. '+(j.payout==='sent'?'The SOL was sent to your wallet.':j.payout==='processing'?'Your payout was sent and is waiting for network confirmation. It should arrive in a moment.':'Your payout is pending and the shop will send it to your wallet.'));await loadCol();loadWallet();openM(sel)}
   catch(err){setStatus(err.message,true);b.disabled=false}
 };
 $('book').onclick=e=>{const s=e.target.closest('.slot[data-n]');if(s)openM(s.dataset.n)};
@@ -412,10 +463,65 @@ async function init(){
     FEE=CFG.feePercent/100;
     CFG.cards.forEach(c=>VAL[c.name]=c.valueLamports/SOL);
     TIERS=CFG.packs.map(p=>({id:p.id,name:p.name,price:p.priceLamports/SOL,w:p.odds,set:p.set}));
-    renderShop();render();await restore();
+    renderShop();render();renderHero();fillLogos();await restore();
   }catch(e){setStatus('Could not reach the shop server: '+e.message,true)}
 }
 init();
+
+// ===== pack art =====
+const PK={basic:{n:'BASIC',l2:'Chance for rare cards'},prem:{n:'PREMIUM',l2:'Higher chance for epic cards'},elite:{n:'ELITE',l2:'Exclusive gold foil cards'}};
+(function(){const n=30,t=[],b=[];for(let i=0;i<=n;i++){const x=(i*100/n).toFixed(2)+'%';t.push(x+' '+(i%2?'0%':'2.4%'));b.unshift(x+' '+(i%2?'100%':'97.6%'))}document.documentElement.style.setProperty('--cp','polygon('+t.concat(b).join(',')+')')})();
+function fillLogos(){document.querySelectorAll('img.lg:not([src])').forEach(i=>i.src=LOGO)}
+function packHTML(t,o){
+  o=o||{};const m=PK[t.id]||{n:String(t.name).toUpperCase(),l2:''};
+  const crown=t.id==='elite'?'<svg class="pkx-crown" viewBox="0 0 64 36"><path d="M4 30 L8 8 L22 20 L32 4 L42 20 L56 8 L60 30 Z" fill="#ffd34d" stroke="#fff0a0" stroke-width="2" stroke-linejoin="round"/><circle cx="8" cy="7" r="3" fill="#fff0a0"/><circle cx="32" cy="3.5" r="3" fill="#fff0a0"/><circle cx="56" cy="7" r="3" fill="#fff0a0"/></svg>':'';
+  const P=['M75 130 L68 112 L74 98 L64 80 L70 64 L60 44 L66 26','M75 130 L88 118 L82 100 L96 86 L90 66 L104 48 L98 30','M75 130 L62 146 L70 160 L56 176 L62 194 L50 214 L56 232','M75 130 L90 142 L84 158 L98 174 L92 196 L106 216 L100 236','M68 112 L50 106 L42 92 L30 90','M92 160 L112 154 L120 138 L134 132','M70 160 L48 164 L36 180'];
+  const cr=o.cracks?'<svg class="pkx-cr" viewBox="0 0 150 260" preserveAspectRatio="none">'+P.map((d,i)=>'<path class="cr'+(i+1)+'" pathLength="100" d="'+d+'"/>').join('')+'</svg>':'';
+  return '<div class="pkx pkx-'+t.id+'"><div class="pkx-body"><img class="lg pkx-logo" alt="">'+crown+'<div class="pkx-name">CRYPTO<br>PACK</div><div class="pkx-badge">'+m.n+'</div><div class="pkx-price">'+(+t.price)+' SOL</div><div class="pkx-l1">5 cards per pack</div><div class="pkx-l2">'+m.l2+'</div><div class="pkx-glow"></div>'+cr+'</div></div>';
+}
+function renderHero(){const h=$('heroPack');if(!h)return;h.innerHTML=['basic','prem','elite'].map((id,i)=>{const t=TIERS.find(x=>x.id===id);return t?'<div class="fw f'+i+'">'+packHTML(t)+'</div>':''}).join('')}
+
+// ===== sound (synthesized with Web Audio, no files) =====
+let AC=null,MG=null,SND=true;try{SND=localStorage.getItem('cp_snd')!=='off'}catch(e){}
+function audio(){
+  if(!SND)return null;
+  try{if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=.8;MG.connect(AC.destination)}if(AC.state==='suspended')AC.resume()}catch(e){return null}
+  MG.gain.value=.8;return AC;
+}
+function tone(f0,f1,t0,d,type,g){const o=AC.createOscillator(),v=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t0);if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t0+d);v.gain.setValueAtTime(.0001,t0);v.gain.exponentialRampToValueAtTime(g,t0+Math.min(.02,d/4));v.gain.exponentialRampToValueAtTime(.0001,t0+d);o.connect(v);v.connect(MG);o.start(t0);o.stop(t0+d+.05)}
+function noise(t0,d,g,fq,type){const n=Math.floor(AC.sampleRate*d),buf=AC.createBuffer(1,n,AC.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<n;i++)ch[i]=Math.random()*2-1;const s=AC.createBufferSource();s.buffer=buf;const f=AC.createBiquadFilter();f.type=type||'bandpass';f.frequency.value=fq||3000;const v=AC.createGain();v.gain.setValueAtTime(g,t0);v.gain.exponentialRampToValueAtTime(.0001,t0+d);s.connect(f);f.connect(v);v.connect(MG);s.start(t0)}
+function thump(t0,g){tone(95,40,t0,.17,'sine',g)}
+function sfxOpen(id){
+  const a=audio();if(!a)return;const t=a.currentTime+.05;
+  const o=a.createOscillator(),lp=a.createBiquadFilter(),v=a.createGain();
+  o.type='sawtooth';o.frequency.setValueAtTime(55,t);o.frequency.exponentialRampToValueAtTime(140,t+3.2);
+  lp.type='lowpass';lp.frequency.setValueAtTime(120,t);lp.frequency.exponentialRampToValueAtTime(1400,t+3.2);
+  v.gain.setValueAtTime(.0001,t);v.gain.exponentialRampToValueAtTime(.1,t+3);v.gain.exponentialRampToValueAtTime(.0001,t+3.35);
+  o.connect(lp);lp.connect(v);v.connect(MG);o.start(t);o.stop(t+3.4);
+  let bt=.1,gap=.85;while(bt<3.1){thump(t+bt,.9);thump(t+bt+.16,.6);bt+=gap;gap=Math.max(.34,gap*.86)}
+  [.5,.75,1,1.3,1.6,1.9,2.2].forEach((c,i)=>{noise(t+c,.12,.5,2200+i*400,'bandpass');tone(900,300,t+c,.08,'square',.04)});
+  tone(300,2600,t+1.6,1.6,'sawtooth',.05);noise(t+1.8,1.4,.12,5000,'highpass');
+  const f=t+3.2;tone(110,30,f,.9,'sine',.9);noise(f,.7,.7,6000,'highpass');
+  [880,1320,1760].forEach((q,i)=>tone(q,q,f+.05,1.4,'sine',.08/(i+1)));
+  if(id==='elite'){tone(1760,2640,f,1.8,'triangle',.06);tone(2200,3300,f+.1,1.6,'triangle',.04)}
+}
+const rarOf=el=>el.classList.contains('legendary')?'legendary':el.classList.contains('epic')?'epic':el.classList.contains('rare')?'rare':'common';
+function sfxCharge(el){
+  const a=audio();if(!a)return;const r=rarOf(el),d={common:.65,rare:1,epic:1.4,legendary:2}[r],t=a.currentTime+.02;
+  for(let k=0;k*.11<d;k++)tone(260*Math.pow(1.045,k),null,t+k*.11,.07,'triangle',.05);
+  if(r==='epic'||r==='legendary'){let b=0,gap=.5;while(b<d){thump(t+b,.5);thump(t+b+.15,.35);b+=gap;gap=Math.max(.3,gap*.85)}}
+  if(r==='legendary')tone(200,1800,t,d,'sawtooth',.04);
+}
+function sfxReveal(el){
+  const a=audio();if(!a)return;const r=rarOf(el),t=a.currentTime+.02;
+  if(r==='common'){tone(520,330,t,.18,'triangle',.18);noise(t,.08,.12,3000,'bandpass')}
+  else if(r==='rare'){tone(880,880,t,.6,'sine',.18);tone(1318,1318,t+.08,.7,'sine',.14);noise(t,.2,.15,6000,'highpass')}
+  else if(r==='epic'){[660,880,1100,1320].forEach((f,i)=>tone(f,f,t+i*.07,1,'triangle',.14));noise(t,.4,.25,7000,'highpass')}
+  else{tone(100,35,t,1.1,'sine',.6);[523,659,784,1046].forEach((f,i)=>tone(f,f,t+.05+i*.09,2.2,'triangle',.14));[1568,2093].forEach((f,i)=>tone(f,f,t+.4+i*.12,1.6,'sine',.07));noise(t,.8,.4,6000,'highpass')}
+}
+function sndLabel(){$('snd').textContent=SND?'\ud83d\udd0a Sound on':'\ud83d\udd07 Sound off'}
+$('snd').onclick=()=>{SND=!SND;try{localStorage.setItem('cp_snd',SND?'on':'off')}catch(e){}if(MG)MG.gain.value=SND?.8:0;if(SND)audio();sndLabel()};
+sndLabel();
 </script>
 </body>
 </html>
